@@ -113,4 +113,4 @@ def __repr__(self):
          return f"<Order(relation_order={self.relation_order},relation_product={self.relation_product},quantity={self.quantity},price={self.price})>"
 
 if __name__ == "__main__":
-     tamagotchi = Product(product="wolfchan", price="35", description="Skzoo x Tamagotchi Wolfchan", stock="30", straykidsmember="Bangchan", color="gray")
+    tamagotchi = Product(product="wolfchan", price="35", description="Skzoo x Tamagotchi Wolfchan", stock="30", straykidsmember="Bangchan", color="gray")
