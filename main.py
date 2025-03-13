@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from models import db, User, Address, Product
+from models import db, User, Address, Product, Cart
 
 from flask import Flask, request, jsonify
 from addreses import address_api
@@ -69,10 +69,55 @@ def get_product():
         product_dict = {
             "id": product.id,
             "product": product.product,
+            "price": product.price,
+            "description": product.description,
+            "stock": product.stock,
+            "straykidsmember": product.straykidsmember,
+            "color": product.color,
         }
         cositos_en_formato_diccionario.append(product_dict)
 
     return jsonify(cositos_en_formato_diccionario)
+
+
+@api.route("/product/<int:id>", methods=["DELETE"])
+def delete_product(id):
+    """
+    Delete a product in the database with the provide data.
+    """
+    search_product = session.query(Product).get(id)
+    session.delete(search_product)
+    session.commit()
+    return jsonify({"message": "cosito borrado"}), 201
+
+@api.route("/cart", methods=["GET"])
+def get_cart():
+    """
+    Retrieve all  from the database and return them in JSON format.
+    """
+    cart = session.query(Cart).all()
+
+    carrito_en_formato_diccionario = []
+
+    for cart in cart:
+        cart_dict = {
+            "id": cart.id,
+            "creationdate": cart.creation_date,
+        }
+        carrito_en_formato_diccionario.append(cart_dict)
+
+    return jsonify(carrito_en_formato_diccionario)
+
+@api.route("/cart", methods=["POST"])
+def create_cart():
+    """
+    Create a new cart in the database with the provided data.
+    """
+    data = request.get_json()
+    new_cart = Cart()
+    session.add(new_cart)
+    session.commit()
+    return jsonify({"message": "Cart created successfully"}), 201
 
 if __name__ == "__main__":
     api.run(port=5000, debug=True)
