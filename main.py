@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from models import db, User, Address, Product, Cart, CartItem
+from models import db, User, Address, Product, Cart, CartItem, Order
 
 from flask import Flask, request, jsonify
 from addreses import address_api
@@ -152,6 +152,87 @@ def delete_carts_item(id):
     session.delete(search_cart_item)
     session.commit()
     return jsonify({"message": "cosito del carrito borrado"}), 201
+
+@api.route("/orders", methods=["POST"])
+def create_orders():
+     """
+     Create a new orders in the database with the provided data.
+     """
+     data = request.get_json()
+     cart_id = data.get("cart_id")
+     search_cart = session.query(Cart).get(cart_id)
+     total = search_cart.gettotal()
+     new_order = Order(total_ammount=total, status="pending", client_info="Stay")
+     session.add(new_order)
+     session.commit()
+     return jsonify({"message": "Order created successfully"}), 201
+ 
+@api.route("/orders", methods=["GET"])
+def get_orders():
+     """
+     Retrieve all orders from the database and return them in JSON format.
+     """
+     orders = session.query(Order).all()
+ 
+     ordenes_en_formato_diccionario = []
+ 
+     for order in orders:
+         order_dict = {
+             "id": order.id,
+             "client_info": order.client_info,
+             "total_ammount": order.total_ammount
+             
+         }
+         ordenes_en_formato_diccionario.append(order_dict)
+ 
+     return jsonify(ordenes_en_formato_diccionario)
+
+@api.route("/orders/<int:id>", methods=["GET"])
+def search_single_order_by_(id):
+     """
+    Search an existing order in the database with the provided data.
+     """
+     # Step 1: Get the order to update
+     order = session.query(Order).get(id)
+ 
+     # Step 2: Check if the order exists
+     if not order:
+         return jsonify({"message": "Order not found"}), 404
+     
+     order_dict = {
+             "id": order.id,
+             "client_info": order.client_info,
+             "total_ammount": order.total_ammount,
+             "status": order.status
+         }
+ 
+     return jsonify(order_dict)
+ 
+@api.route("/orders/<int:id>", methods=["PUT"])
+def update_order(id):
+     """
+     Update an existing order in the database with the provided data.
+     """
+     # Step 1: Get the order to update
+     order_to_update = session.query(Order).get(id)
+ 
+     # Step 2: Check if the order exists
+     if not order_to_update:
+         return jsonify({"message": "Order not found"}), 404
+ 
+     # Step 3: Get the updated data from the request
+     data = request.get_json()
+ 
+     # Step 4: Update the product fields
+     if "status" in data:
+         order_to_update.status = data["status"]
+     
+ 
+     # Step 5: Commit the changes to the database
+     session.commit()
+ 
+     # Step 6: Return a success message
+     return jsonify({"message": "order updated successfully"}), 200
 
 if __name__ == "__main__":
     api.run(port=5000, debug=True)

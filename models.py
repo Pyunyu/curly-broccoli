@@ -42,7 +42,7 @@ class Product(db):
      __tablename__ = "product"
      id = Column(Integer, primary_key=True)
      product = Column(String)
-     price = Column(String)
+     price = Column(Integer)
      description = Column(String)
      stock = Column(Integer)
      straykidsmember = Column(Integer)
@@ -67,10 +67,14 @@ class Cart(db):
          return {
              "id":self.id,
              "creation_date":self.creation_date,
-             "cart_items":[item.serialize() for item in self.cart_items]
-         } 
+             "cart_items":[item.serialize() for item in self.cart_items],
+             "total": self.gettotal()
+             }
+          
+     def gettotal(self):
+          lista_de_cositas=[(item.quantity * item.product.price) for item in self.cart_items]
+          return sum(lista_de_cositas)
      
-
 class CartItem(db):
      """
      Represents the CartItems of the buyer in the database.
