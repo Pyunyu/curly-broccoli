@@ -90,6 +90,41 @@ def delete_product(id):
     session.commit()
     return jsonify({"message": "cosito borrado"}), 201
 
+@api.route("/product/<int:id>", methods=["PUT"])
+def update_product(id):
+     """
+     Update an existing product in the database with the provided data.
+     """
+     # Step 1: Get the product to update
+     product_to_update = session.query(Product).get(id)
+ 
+     # Step 2: Check if the product exists
+     if not product_to_update:
+         return jsonify({"message": "Product not found"}), 404
+ 
+     # Step 3: Get the updated data from the request
+     data = request.get_json()
+ 
+     # Step 4: Update the product fields
+     if "name" in data:
+         product_to_update.name = data["name"]
+     if "price" in data:
+         product_to_update.price = data["price"]
+     if "description" in data:
+         product_to_update.description = data["description"]
+     if "stock" in data:
+         product_to_update.stock = data["stock"]
+     if "straykidsmember" in data:
+         product_to_update.straykidsmember = data["straykidsmember"]
+     if "color" in data:
+         product_to_update.color = data["color"]
+ 
+     # Step 5: Commit the changes to the database
+     session.commit()
+ 
+     # Step 6: Return a success message
+     return jsonify({"message": "Product updated successfully"}), 200
+
 @api.route("/cart", methods=["GET"])
 def get_cart():
     """
@@ -146,7 +181,7 @@ def add_carts_item(id):
 @api.route("/carts/<int:id>/items", methods=["DELETE"])
 def delete_carts_item(id):
     """
-    Delete a carts item in the database with the provide data.
+    Delete a carts items in the database with the provide data.
     """
     search_cart_item = session.query(CartItem).get(id)
     session.delete(search_cart_item)

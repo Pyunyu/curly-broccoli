@@ -72,7 +72,7 @@ class Cart(db):
              }
           
      def gettotal(self):
-          lista_de_cositas=[(item.quantity * item.product.price) for item in self.cart_items]
+          lista_de_cositas=[(item.quantity * int(item.products.price)) for item in self.cart_items]
           return sum(lista_de_cositas)
      
 class CartItem(db):
